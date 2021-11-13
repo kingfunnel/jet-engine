@@ -1,0 +1,28 @@
+#side-sortables,
+.components-panel {
+	.cx-control-posts {
+		flex-wrap: wrap;
+		.cx-control__info {
+			flex: 0 1 100%;
+			max-width: 100%;
+			padding-right: 0;
+			padding-bottom: 0;
+			.cx-control__title {
+				margin: 0;
+			}
+		}
+		.cx-control__content {
+			flex: 0 1 100%;
+			max-width: 100%;
+		}
+		.cx-control__description {
+			overflow-wrap: break-word;
+		}
+		.select2-selection__rendered {
+			overflow-x: auto;
+		}
+		.select2 {
+			width: 100% !important;
+		}
+	}
+}
