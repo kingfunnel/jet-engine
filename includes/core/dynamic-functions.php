@@ -394,7 +394,7 @@ if ( ! class_exists( 'Jet_Engine_Dynamic_Functions' ) ) {
 
 			$controls['data_context_tax_term'] = array(
 				'label'  => __( 'Set term ID/slug', 'jet-engine' ),
-				'type'   => 'select',
+				'type'   => 'text',
 				'label_block' => true,
 				'description' => __( 'Leave empty to get term dynamically. Use prefix <b>slug::</b> to set term by slug instead of ID, for example - slug::term-slug', 'jet-engine' ),
 				'condition' => array(
@@ -406,7 +406,7 @@ if ( ! class_exists( 'Jet_Engine_Dynamic_Functions' ) ) {
 
 			$controls['data_context_user_id'] = array(
 				'label'  => __( 'Set user ID/login/email', 'jet-engine' ),
-				'type'   => 'select',
+				'type'   => 'text',
 				'label_block' => true,
 				'description' => __( 'Leave empty to get user ID dynamically. Use prefixes <b>login::</b> or <b>email::</b> to set user by login or email instead of ID, for example - email::admin@demolink.org', 'jet-engine' ),
 				'condition' => array(

@@ -1296,14 +1296,13 @@
 										needReInitFilters = true;
 									}
 
-									if ( window.JetSmartFilterSettings.jetFiltersIndexedData && response.data.indexer_data ) {
-										window.JetSmartFilterSettings.jetFiltersIndexedData = $.extend(
-											{},
-											window.JetSmartFilterSettings.jetFiltersIndexedData,
-											response.data.indexer_data
-										);
+									if ( response.data.indexer_data ) {
+										const {
+											provider = false,
+											query = {}
+										} = response.data.indexer_data;
 
-										needReInitFilters = true;
+										window.JetSmartFilters.setIndexedData( provider, query );
 									}
 								}
 
@@ -1598,7 +1597,7 @@
 
 		getElementorElementSettings: function( $scope ) {
 
-			if ( window.elementorFrontend && window.elementorFrontend.isEditMode() ) {
+			if ( window.elementorFrontend && window.elementorFrontend.isEditMode() && $scope.hasClass( 'elementor-element-edit-mode' ) ) {
 				return JetEngine.getEditorElementSettings( $scope );
 			}
 

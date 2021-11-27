@@ -35,7 +35,7 @@ class Post_Has_Terms extends Base {
 	 * @return [type] [description]
 	 */
 	public function check_condition( $args = array() ) {
-		
+
 		$settings = isset( $args['settings'] ) ? $args['settings'] : array();
 		$request  = isset( $args['request'] ) ? $args['request'] : array();
 
@@ -63,7 +63,7 @@ class Post_Has_Terms extends Base {
 	 * @return array
 	 */
 	public function get_terms_from_request( $tax, $request = array() ) {
-		
+
 		$result = array();
 		$all_terms = ! empty( $request['terms'] ) ? $request['terms'] : array();
 
@@ -76,15 +76,17 @@ class Post_Has_Terms extends Base {
 
 		if ( ! is_taxonomy_hierarchical( $tax ) ) {
 			$result = array_map( function( $term ) use ( $tax ) {
-				
-				$term = get_term_by( 'name', $term, $tax );
-				
-				if ( $term ) {
-					return $term->term_id;
+
+				$term_obj = get_term_by( 'name', $term, $tax );
+
+				if ( $term_obj ) {
+					return $term_obj->term_id;
+				} elseif ( is_numeric( $term ) ) {
+					return $term;
 				} else {
 					return false;
 				}
-				
+
 			}, $terms );
 		} else {
 			$result = array_map( 'absint', $terms );
@@ -180,9 +182,20 @@ class Post_Has_Terms extends Base {
 		ob_start();
 		?>
 		window.JetEnginMBAjaxConditionsHandlers.<?php echo $this->get_key(); ?> = function( $ ) {
-			$( document ).on( 'change', '.categorychecklist, .tagsdiv', () => {
+
+			$( document ).on( 'change', '.categorychecklist, .tagchecklist', () => {
+				$( document ).trigger( 'jet-engine/meta-box/data-change', [] );
+			} ).on( 'click', '.tagadd', () => {
+				console.log( 123 );
+				$( document ).trigger( 'jet-engine/meta-box/data-change', [] );
+			} ).on( 'click', '.tag-cloud-link', () => {
+				console.log( 234 );
+				$( document ).trigger( 'jet-engine/meta-box/data-change', [] );
+			} ).on( 'click', '.tagchecklist .ntdelbutton', () => {
+				console.log( 345 );
 				$( document ).trigger( 'jet-engine/meta-box/data-change', [] );
 			} );
+
 		}
 		<?php
 		return ob_get_clean();

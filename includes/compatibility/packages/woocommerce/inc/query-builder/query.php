@@ -123,6 +123,12 @@ class WC_Product_Query extends \Jet_Engine\Query_Builder\Queries\Base_Query {
 					unset( $query_row['exclude_children'] );
 				}
 
+				if ( empty( $query_row['terms'] ) ) {
+					continue;
+				}
+
+				$query_row['terms'] = $this->explode_string( $query_row['terms'] );
+
 				$args['tax_query'][] = $query_row;
 			}
 		}

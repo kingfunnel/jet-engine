@@ -26,7 +26,7 @@ if ( ! class_exists( 'Jet_Engine_Smart_Filters_Package' ) ) {
 			add_filter(
 				'jet-engine/ajax/get_listing/response',
 				array( $this, 'add_to_response_filters_data' ),
-				10, 2
+				10, 3
 			);
 
 			add_filter(
@@ -98,7 +98,7 @@ if ( ! class_exists( 'Jet_Engine_Smart_Filters_Package' ) ) {
 		 *
 		 * @return array
 		 */
-		public function add_to_response_filters_data( $response, $widget_settings ) {
+		public function add_to_response_filters_data( $response, $widget_settings, $query = array() ) {
 
 			if ( empty( $widget_settings['lazy_load'] ) ) {
 				return $response;
@@ -129,8 +129,13 @@ if ( ! class_exists( 'Jet_Engine_Smart_Filters_Package' ) ) {
 			}
 
 			if ( jet_smart_filters()->indexer->data ) {
-				jet_smart_filters()->indexer->data->setup_queries_from_request();
-				$response['indexer_data'] = jet_smart_filters()->indexer->data->prepare_provider_counts();
+				$response['indexer_data'] = array(
+					'provider' => 'jet-engine/' . $query_id,
+					'query'    => wp_parse_args(
+						$query,
+						isset( $filters_data['queries'][$query_id] ) ? $filters_data['queries'][$query_id] : array()
+					)
+				);
 			}
 
 			return $response;

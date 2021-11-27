@@ -113,8 +113,9 @@ class Meta_Fields {
 
 		foreach ( $list as $item ) {
 			$result[] = array(
-				'key'   => isset( $item['value'] ) ? $item['value'] : '',
-				'value' => isset( $item['label'] ) ? $item['label'] : '',
+				'key'        => isset( $item['value'] ) ? $item['value'] : '',
+				'value'      => isset( $item['label'] ) ? $item['label'] : '',
+				'is_checked' => isset( $item['is_checked'] ) ? filter_var( $item['is_checked'], FILTER_VALIDATE_BOOLEAN ) : false,
 			);
 		}
 

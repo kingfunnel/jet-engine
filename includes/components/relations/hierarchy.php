@@ -16,6 +16,7 @@ if ( ! class_exists( 'Jet_Engine_Relations_Hierarchy' ) ) {
 	class Jet_Engine_Relations_Hierarchy {
 
 		private $_hierarchy = array();
+		private $_relations = array();
 
 		/**
 		 * Constructor for the class
@@ -326,14 +327,15 @@ if ( ! class_exists( 'Jet_Engine_Relations_Hierarchy' ) ) {
 		 */
 		public function create_hierarchy( $relations = array() ) {
 
-			foreach ( $relations as $key => $relation ) {
+			$this->_relations = $this->prepare_relations( $relations );
+
+			foreach ( $this->_relations as $key => $relation ) {
 
 				if ( empty( $relation['parent_relation'] ) ) {
 
-					$all_relations = $relations;
-					unset( $all_relations[ $key ] );
-
-					$this->search_for_children( $key, $relation, $all_relations, $key );
+					if ( ! empty( $relation['children'] ) ) {
+						$this->search_for_children( $key, $relation, null );
+					}
 
 				}
 
@@ -342,36 +344,61 @@ if ( ! class_exists( 'Jet_Engine_Relations_Hierarchy' ) ) {
 		}
 
 		/**
-		 * Add relations to existing hierarcy or create new
+		 * Prepare relations array.
+		 *
+		 * @param  array $relations
+		 * @return array
 		 */
-		public function search_for_children( $key = null, $relation = null, $all_relations = array(), $initial = null ) {
+		public function prepare_relations( $relations = array() ) {
 
-			foreach ( $all_relations as $child_key => $child_relation ) {
+			foreach ( $relations as $key => $relation ) {
 
-				if ( ! empty( $child_relation['parent_relation'] ) && $key === $child_relation['parent_relation'] ) {
-
-					if ( empty( $this->_hierarchy[ $initial ] ) ) {
-						$this->_hierarchy[ $initial ] = array(
-							'trail'      => array( $key ),
-							'post_types' => array( $relation['post_type_1'], $relation['post_type_2'] ),
-						);
-					}
-
-					$this->_hierarchy[ $initial ]['trail'][]      = $child_key;
-					$this->_hierarchy[ $initial ]['post_types'][] = $child_relation['post_type_1'];
-					$this->_hierarchy[ $initial ]['post_types'][] = $child_relation['post_type_2'];
-
-					$this->_hierarchy[ $initial ]['post_types'] = array_values( array_unique(
-						$this->_hierarchy[ $initial ]['post_types']
-					) );
-
-					unset( $all_relations[ $child_key ] );
-
-					$this->search_for_children( $child_key, $child_relation, $all_relations, $initial );
-
+				if ( ! empty( $relation['parent_relation'] ) ) {
+					$relations[ $relation['parent_relation'] ]['children'][] = $key;
 				}
 
 			}
+
+			return $relations;
+		}
+
+		/**
+		 * Add relations to existing hierarchy or create new
+		 *
+		 * @param string $key
+		 * @param array  $relation
+		 * @param array  $_result
+		 */
+		public function search_for_children( $key = null, $relation = null, $_result = null ) {
+
+			foreach ( $relation['children'] as $child_key ) {
+
+				if ( empty( $_result ) ) {
+					$result = array(
+						'trail'      => array( $key ),
+						'post_types' => array( $relation['post_type_1'], $relation['post_type_2'] ),
+					);
+				} else {
+					$result = $_result;
+				}
+
+				$child_relation = $this->_relations[ $child_key ];
+
+				$result['trail'][]      = $child_key;
+				$result['post_types'][] = $child_relation['post_type_1'];
+				$result['post_types'][] = $child_relation['post_type_2'];
+
+				$result['post_types'] = array_values( array_unique(
+					$result['post_types']
+				) );
+
+				if ( ! empty( $child_relation['children'] ) ) {
+					$this->search_for_children( $child_key, $child_relation, $result );
+				} else {
+					$this->_hierarchy[] = $result;
+				}
+			}
+
 		}
 
 	}

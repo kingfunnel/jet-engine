@@ -1,5 +1,31 @@
 # ChangeLog
 
+## 2.10.2
+* ADD: Title Field option for the Repeater Meta Field;
+* ADD: an ability to copy repeater item in meta boxes;
+* ADD: an ability to collapse repeater items in meta boxes on page load;
+* ADD: Author ID parameter to WC_Product_Query;
+* ADD: warning tooltip on removing repeater item in meta boxes;
+* ADD: base macros class to more refined custom macros registration - https://gist.github.com/MjHead/d1715c7e14547d2d9994a8d8b8913d0e
+* FIX: WC_Product_Query id in Data Stores;
+* FIX: %current_terms% and %queried_term% macros in WC_Products_Query Tax Query;
+* FIX: select2 styles in interface builder module;
+* FIX: prevent js error in Elementor Editor;
+* FIX: print inner templates styles in listing item on ajax;
+* FIX: hierarchy relations.
+
+## 2.10.1
+* ADD: support Save as array checkbox fields for terms meta;
+* ADD: Post Has Terms condition in the Dynamic Visibility module;
+* ADD: updating the user display_name property on update user action;
+* ADD: an ability to use shortcodes in email notifications content;
+* ADD: an ability to use multiple post types in the Calendar Listing;
+* FIX: applying Is checked setting from glossary option;
+* FIX: init Data Store Button script;
+* FIX: Images gallery slider callback in Blocks Editor;
+* FIX: JetSmartFilters Indexer compatibility lazy load with Use as Archive Template;
+* FIX: process meta box conditions for non-hiearachical terms.
+
 ## 2.10.0
 * ADD: New admin conditions for meta boxes;
 * ADD: Admin filters for CPT;

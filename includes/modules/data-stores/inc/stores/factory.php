@@ -129,6 +129,11 @@ class Factory {
 		$size      = $this->get_size();
 		$old_count = $this->get_count();
 
+		/**
+		 * Hook fires before adding any data into the store
+		 */
+		do_action( 'jet-engine/data-stores/before-add-to-store', $post_id, $store, $this );
+
 		if ( 0 < $size && $old_count >= $size ) {
 
 			if ( $this->is_on_view_store() && ! $this->in_store( $post_id ) ) {
@@ -156,6 +161,11 @@ class Factory {
 
 		}
 
+		/**
+		 * Hook fires after adding any data from the store
+		 */
+		do_action( 'jet-engine/data-stores/after-add-to-store', $post_id, $store, $this );
+
 		$fragments = apply_filters( 'jet-engine/data-stores/ajax-store-fragments', $fragments, $this, $post_id );
 
 		wp_send_json_success(
@@ -178,6 +188,11 @@ class Factory {
 		$count = $this->get_type()->remove( $store, $post_id );
 		$fragments = array();
 
+		/**
+		 * Hook fires before removing any data into the store
+		 */
+		do_action( 'jet-engine/data-stores/before-remove-from-store', $post_id, $store, $this );
+
 		if ( $this->can_count_posts() ) {
 
 			if ( $count < $old_count ) {
@@ -191,6 +206,11 @@ class Factory {
 			$fragments[ $selector ] = $new_post_count;
 
 		}
+
+		/**
+		 * Hook fires after removing any data from the store
+		 */
+		do_action( 'jet-engine/data-stores/after-remove-from-store', $post_id, $store, $this );
 
 		$fragments = apply_filters( 'jet-engine/data-stores/ajax-store-fragments', $fragments, $this, $post_id );
 

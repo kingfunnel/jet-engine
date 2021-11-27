@@ -283,7 +283,7 @@ if ( ! class_exists( 'Jet_Engine_Listings_Ajax_Handlers' ) ) {
 
 			self::maybe_add_enqueue_assets_data( $response );
 
-			$response = apply_filters( 'jet-engine/ajax/get_listing/response', $response, $_widget_settings );
+			$response = apply_filters( 'jet-engine/ajax/get_listing/response', $response, $_widget_settings, $query );
 
 			wp_send_json_success( $response );
 

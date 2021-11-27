@@ -79,6 +79,17 @@
 				>
 					<jet-query-dynamic-args v-model="dynamicQuery.parent_exclude"></jet-query-dynamic-args>
 				</cx-vui-input>
+				<cx-vui-input
+					label="<?php _e( 'Author ID', 'jet-engine' ); ?>"
+					type="number"
+					description="<?php _e( 'Get products with a specific author.', 'jet-engine' ); ?>"
+					:wrapper-css="[ 'equalwidth', 'has-macros' ]"
+					size="fullwidth"
+					name="query_author"
+					v-model="query.author"
+				>
+					<jet-query-dynamic-args v-model="dynamicQuery.author"></jet-query-dynamic-args>
+				</cx-vui-input>
 				<cx-vui-select
 					label="<?php _e( 'Order By', 'jet-engine' ); ?>"
 					description="<?php _e( 'Sort retrieved products by selected parameter.', 'jet-engine' ); ?>"

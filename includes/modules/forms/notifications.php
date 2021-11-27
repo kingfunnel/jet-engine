@@ -857,6 +857,36 @@ if ( ! class_exists( 'Jet_Engine_Booking_Forms_Notifications' ) ) {
 
 			}
 
+			// Maybe updating the user `display_name` property.
+			if ( empty( $user['display_name'] ) ) {
+
+				if ( $updated_user->display_name === $updated_user->first_name ) {
+
+					if ( ! empty( $user['first_name'] ) ) {
+						$user['display_name'] = $user['first_name'];
+					}
+
+				} elseif ( $updated_user->display_name === $updated_user->last_name ) {
+
+					if ( ! empty( $user['last_name'] ) ) {
+						$user['display_name'] = $user['last_name'];
+					}
+
+				} elseif ( $updated_user->display_name === $updated_user->first_name . ' ' . $updated_user->last_name ) {
+
+					if ( ! empty( $user['first_name'] ) && ! empty( $user['last_name'] ) ) {
+						$user['display_name'] = $user['first_name'] . ' ' . $user['last_name'];
+					}
+
+				} elseif ( $updated_user->display_name === $updated_user->last_name . ' ' . $updated_user->first_name ) {
+
+					if ( ! empty( $user['first_name'] ) && ! empty( $user['last_name'] ) ) {
+						$user['display_name'] = $user['last_name'] . ' ' . $user['first_name'];
+					}
+
+				}
+			}
+
 			// $user = array_filter( $user );
 
 			wp_update_user( $user );
@@ -1002,6 +1032,7 @@ if ( ! class_exists( 'Jet_Engine_Booking_Forms_Notifications' ) ) {
 			$content_type = $this->get_content_type();
 			$subject      = $this->parse_macros( $subject );
 			$message      = $this->parse_macros( $message );
+			$message      = do_shortcode( $message );
 
 			if ( 'text/html' === $content_type ) {
 				$message = wpautop( $message );

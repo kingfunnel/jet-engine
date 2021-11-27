@@ -49,6 +49,15 @@ class Jet_Listing_Calendar_Block_Type extends \Jet_Engine_Blocks_Views_Type_Base
 				'type'    => 'string',
 				'default' => '',
 			),
+			'use_custom_post_types' => array(
+				'type'    => 'boolean',
+				'default' => false,
+			),
+			'custom_post_types' => array(
+				'type'    => 'array',
+				'items'   => array( 'type' => 'string' ),
+				'default' => array(),
+			),
 			'week_days_format' => array(
 				'type'    => 'string',
 				'default' => 'short',

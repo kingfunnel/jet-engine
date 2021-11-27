@@ -388,6 +388,14 @@ if ( ! class_exists( 'Jet_Engine_CPT_Meta' ) ) {
 							$field['repeater-fields']
 						);
 
+						if ( ! empty( $field['repeater_title_field'] ) ) {
+							$result[ $field['name'] ]['title_field'] = $field['repeater_title_field'];
+						}
+
+						if ( ! empty( $field['repeater_collapsed'] ) ) {
+							$result[ $field['name'] ]['collapsed'] = filter_var( $field['repeater_collapsed'], FILTER_VALIDATE_BOOLEAN );
+						}
+
 						break;
 
 					case 'iconpicker':

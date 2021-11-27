@@ -139,6 +139,32 @@ if ( ! class_exists( 'Elementor\Jet_Listing_Calendar_Widget' ) ) {
 			);
 
 			$this->add_control(
+				'use_custom_post_types',
+				array(
+					'label'        => __( 'Use Custom Post Types', 'jet-engine' ),
+					'type'         => Controls_Manager::SWITCHER,
+					'label_on'     => __( 'Yes', 'jet-engine' ),
+					'label_off'    => __( 'No', 'jet-engine' ),
+					'return_value' => 'yes',
+					'default'      => '',
+				)
+			);
+
+			$this->add_control(
+				'custom_post_types',
+				array(
+					'label'       => esc_html__( 'Post Types', 'jet-engine' ),
+					'type'        => Controls_Manager::SELECT2,
+					'label_block' => true,
+					'multiple'    => true,
+					'options'     => jet_engine()->listings->get_post_types_for_options(),
+					'condition'   => array(
+						'use_custom_post_types' => 'yes',
+					),
+				)
+			);
+
+			$this->add_control(
 				'week_days_format',
 				array(
 					'label'   => __( 'Week days format', 'jet-engine' ),
@@ -149,6 +175,7 @@ if ( ! class_exists( 'Elementor\Jet_Listing_Calendar_Widget' ) ) {
 						'short'   => __( 'Short', 'jet-engine' ),
 						'initial' => __( 'Initial letter', 'jet-engine' ),
 					),
+					'separator' => 'before',
 				)
 			);
 

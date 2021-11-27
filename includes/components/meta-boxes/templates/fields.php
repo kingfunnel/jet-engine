@@ -767,6 +767,46 @@
 					</cx-vui-repeater>
 				</div>
 			</cx-vui-component-wrapper>
+			<cx-vui-switcher
+				label="<?php _e( 'Collapsed', 'jet-engine' ); ?>"
+				description="<?php _e( 'Toggle this option to collapse repeater items on page load', 'jet-engine' ); ?>"
+				:wrapper-css="[ 'equalwidth' ]"
+				:value="fieldsList[ index ].repeater_collapsed"
+				@input="setFieldProp( index, 'repeater_collapsed', $event )"
+				:conditions="[
+					{
+						'input':   fieldsList[ index ].type,
+						'compare': 'equal',
+						'value':   'repeater',
+					},
+					{
+						'input':   fieldsList[ index ].object_type,
+						'compare': 'equal',
+						'value':   'field',
+					}
+				]"
+			></cx-vui-switcher>
+			<cx-vui-select
+				label="<?php _e( 'Title Field', 'jet-engine' ); ?>"
+				description="<?php _e( 'Select a repeater field to show as a repeater item title', 'jet-engine' ); ?>"
+				:wrapper-css="[ 'equalwidth' ]"
+				:size="'fullwidth'"
+				:options-list="getRepeaterTitleFields( index )"
+				:value="fieldsList[ index ].repeater_title_field"
+				@input="setFieldProp( index, 'repeater_title_field', $event )"
+				:conditions="[
+					{
+						'input':   fieldsList[ index ].type,
+						'compare': 'equal',
+						'value':   'repeater',
+					},
+					{
+						'input':   fieldsList[ index ].object_type,
+						'compare': 'equal',
+						'value':   'field',
+					}
+				]"
+			></cx-vui-select>
 			<cx-vui-textarea
 				label="<?php _e( 'Description', 'jet-engine' ); ?>"
 				description="<?php _e( 'Meta field description to be shown on Post edit page', 'jet-engine' ); ?>"

@@ -117,6 +117,8 @@ class Manager {
 			return $settings;
 		} );
 
+		add_filter( 'jet-engine/listing-injections/item-meta-value', array( $this, 'get_injection_cct_field_value' ), 10, 3 );
+
 	}
 
 	public function type_admin_column_cb( $result, $listing_settings ) {
@@ -500,6 +502,19 @@ class Manager {
 			return false;
 		}
 
+	}
+
+	public function get_injection_cct_field_value( $result, $obj, $field ) {
+
+		if ( ! isset( $obj->cct_slug ) ) {
+			return $result;
+		}
+
+		if ( ! isset( $obj->$field ) ) {
+			return '';
+		}
+
+		return array( $obj->$field );
 	}
 
 }

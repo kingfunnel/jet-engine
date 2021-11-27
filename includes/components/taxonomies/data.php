@@ -163,6 +163,7 @@ if ( ! class_exists( 'Jet_Engine_CPT_Tax_Data' ) ) {
 				'tb',
 				'term',
 				'theme',
+				'themes',
 				'type',
 				'w',
 				'withcomments',

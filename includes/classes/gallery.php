@@ -34,7 +34,7 @@ if ( ! class_exists( 'Jet_Engine_Img_Gallery' ) ) {
 
 			wp_enqueue_script( 'jquery-slick' );
 			wp_enqueue_script( 'imagesloaded' );
-			wp_enqueue_script( 'jet-engine-frontend' );
+			jet_engine()->frontend->frontend_scripts();
 
 			$args = wp_parse_args( $args, array(
 				'size'             => 'full',

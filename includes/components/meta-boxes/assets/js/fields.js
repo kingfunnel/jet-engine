@@ -281,6 +281,8 @@ Vue.component( 'jet-meta-fields', {
 					'options':               field.options,
 					'type':                  field.type,
 					'repeater-fields':       field['repeater-fields'],
+					'repeater_title_field':  field.repeater_title_field,
+					'repeater_collapsed':    field.repeater_collapsed,
 					'description':           field.description,
 					'width':                 field.width,
 					'is_timestamp':          field.is_timestamp,
@@ -376,6 +378,10 @@ Vue.component( 'jet-meta-fields', {
 
 		},
 		deleteRepeaterField: function( childIndex, fieldIndex ) {
+
+			// Maybe clear a `Title Field` value.
+			this.maybeClearRepeaterTitleField( fieldIndex, childIndex );
+
 			this.fieldsList[ fieldIndex ]['repeater-fields'].splice( childIndex, 1 );
 			//this.onInput();
 		},
@@ -448,6 +454,56 @@ Vue.component( 'jet-meta-fields', {
 
 			this.fieldsList[ fieldIndex ]['repeater-fields'].splice( rFieldIndex, 1, field );
 			//this.onInput();
+		},
+
+		getRepeaterTitleFields: function( index ) {
+			var field = this.fieldsList[ index ],
+				allowedTypes = [ 'text', 'textarea', 'radio', 'select' ],
+				titleFieldsList = [],
+				repeaterFields;
+
+			if ( 'field' !== field.object_type || 'repeater' !== field.type ) {
+				return titleFieldsList;
+			}
+
+			titleFieldsList.push( {
+				value: '',
+				label: this.i18n.select_field,
+			} );
+
+			if ( undefined === field['repeater-fields'] ) {
+				return titleFieldsList;
+			}
+
+			repeaterFields = field['repeater-fields'];
+
+			if ( ! repeaterFields.length ) {
+				return titleFieldsList;
+			}
+
+			for ( var i = 0; i < repeaterFields.length; i++ ) {
+
+				if ( -1 === allowedTypes.indexOf( repeaterFields[i].type ) ) {
+					continue;
+				}
+
+				if ( 'select' === repeaterFields[i].type && repeaterFields[i].is_multiple ) {
+					continue;
+				}
+
+				titleFieldsList.push( {
+					value: repeaterFields[i].name,
+					label: repeaterFields[i].title,
+				} );
+
+			}
+
+			return titleFieldsList;
+		},
+		maybeClearRepeaterTitleField: function( fieldIndex, childIndex ) {
+			if ( this.fieldsList[ fieldIndex ].repeater_title_field === this.fieldsList[ fieldIndex ]['repeater-fields'][ childIndex ].name ) {
+				this.fieldsList[ fieldIndex ].repeater_title_field = '';
+			}
 		},
 
 		addNewCondition: function( $event, index ) {

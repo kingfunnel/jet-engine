@@ -196,6 +196,23 @@ if ( -1 !== window.JetEngineListingData.activeModules.indexOf( 'calendar' ) ) {
 										} }
 									/>
 								}
+								<ToggleControl
+									label={ __( 'Use Custom Post Types' ) }
+									checked={ attributes.use_custom_post_types }
+									onChange={ () => {
+										props.setAttributes({ use_custom_post_types: ! attributes.use_custom_post_types });
+									} }
+								/>
+								{ attributes.use_custom_post_types && <SelectControl
+									multiple={true}
+									label={ __( 'Post types' ) }
+									value={ attributes.custom_post_types }
+									options={ window.JetEngineListingData.postTypes }
+									onChange={ newValue => {
+										props.setAttributes( { custom_post_types: newValue } );
+									} }
+								/> }
+								<hr/>
 								<SelectControl
 									label={ __( 'Week days format' ) }
 									value={ attributes.week_days_format }

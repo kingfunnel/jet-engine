@@ -32,6 +32,7 @@ if ( ! class_exists( 'CX_Control_Repeater' ) ) {
 			'ui_kit'      => true,
 			'required'    => false,
 			'title_field' => '',
+			'collapsed'   => false,
 		);
 
 		/**
@@ -206,10 +207,20 @@ if ( ! class_exists( 'CX_Control_Repeater' ) ) {
 		public function render_row( $index, $widget_index, $data ) {
 			$this->data = $data;
 
-			$html = '<div class="cx-ui-repeater-item" >';
+			$item_classes = array( 'cx-ui-repeater-item' );
+
+			if ( $this->settings['collapsed'] && ! $this->_is_js_row ) {
+				$item_classes[] = 'cx-ui-repeater-min';
+			}
+
+			$html = '<div class="' . implode( ' ', $item_classes ) . '" data-item-index="' . $index .'">';
 			$html .= '<div class="cx-ui-repeater-actions-box">';
 
-			$html .= '<a href="#" class="cx-ui-repeater-remove"></a>';
+			$html .= '<a href="#" class="cx-ui-repeater-copy"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect width="16" height="16" transform="matrix(1 0 0 -1 0 16)" fill="white"></rect><path d="M13.401 14.5362V4.35745H5.47721V14.5362H13.401ZM13.401 2.92766C13.7848 2.92766 14.1234 3.07518 14.4169 3.37021C14.7104 3.64255 14.8571 3.97163 14.8571 4.35745V14.5362C14.8571 14.922 14.7104 15.2624 14.4169 15.5574C14.1234 15.8525 13.7848 16 13.401 16H5.47721C5.09344 16 4.75482 15.8525 4.46134 15.5574C4.16787 15.2624 4.02113 14.922 4.02113 14.5362V4.35745C4.02113 3.97163 4.16787 3.64255 4.46134 3.37021C4.75482 3.07518 5.09344 2.92766 5.47721 2.92766H13.401ZM11.2338 0V1.46383H2.56504V11.6426H1.14282V1.46383C1.14282 1.07801 1.27827 0.737589 1.54917 0.442553C1.84265 0.147518 2.18127 0 2.56504 0H11.2338Z"></path></svg></a>';
+			$html .= '<a href="#" class="cx-ui-repeater-remove">';
+				$html .= '<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect width="16" height="16" transform="matrix(1 0 0 -1 0 16)" fill="white"></rect><path d="M2.28564 14.192V3.42847H13.7142V14.192C13.7142 14.6685 13.5208 15.0889 13.1339 15.4533C12.747 15.8177 12.3005 15.9999 11.7946 15.9999H4.20529C3.69934 15.9999 3.25291 15.8177 2.866 15.4533C2.4791 15.0889 2.28564 14.6685 2.28564 14.192Z"></path><path d="M14.8571 1.14286V2.28571H1.14282V1.14286H4.57139L5.56085 0H10.4391L11.4285 1.14286H14.8571Z"></path></svg>';
+				$html .= '<div class="cx-tooltip">Are you sure?<br><span class="cx-ui-repeater-remove__confirm">Yes</span> / <span class="cx-ui-repeater-remove__cancel">No</span></div>';
+			$html .='</a>';
 			$html .= '<span class="cx-ui-repeater-title">' . $this->get_row_title() . '</span>';
 			$html .= '<a href="#" class="cx-ui-repeater-toggle"></a>';
 
@@ -228,7 +239,7 @@ if ( ! class_exists( 'CX_Control_Repeater' ) ) {
 
 				$field_classes = implode( ' ', $field_classes );
 
-				$html .= '<div class="' . $field_classes . '">';
+				$html .= '<div class="' . $field_classes . '" data-repeater-control-name="' . $field['id'] . '">';
 				$html .= $this->render_field( $index, $widget_index, $field );
 				$html .= '</div>';
 			}

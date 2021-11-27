@@ -22,6 +22,8 @@ if ( ! class_exists( 'Jet_Engine_Elementor_Frontend' ) ) {
 		private $processed_listing_id = null;
 		private $css_added = array();
 
+		private $reset_excerpt_flag = false;
+
 		/**
 		 * Constructor for the class
 		 */
@@ -144,15 +146,60 @@ if ( ! class_exists( 'Jet_Engine_Elementor_Frontend' ) ) {
 
 			add_filter( 'elementor/frontend/the_content', array( $this, 'add_link_to_content' ) );
 
+			add_action( 'elementor/frontend/before_get_builder_content', array( $this, 'maybe_reset_excerpt_flag' ), 10, 2 );
+
 			$content = Elementor\Plugin::instance()->frontend->get_builder_content_for_display( $listing_id, $is_edit_mode );
+
+			if ( $this->reset_excerpt_flag ) {
+				Elementor\Plugin::instance()->frontend->start_excerpt_flag( null );
+				$this->reset_excerpt_flag = false;
+			}
 
 			if ( null === $initial_processed_listing_id ) {
 				remove_filter( 'elementor/frontend/the_content', array( $this, 'add_link_to_content' ) );
+				remove_action( 'elementor/frontend/before_get_builder_content', array( $this, 'maybe_reset_excerpt_flag' ), 10 );
 			}
 
 			$this->processed_listing_id = $initial_processed_listing_id;
 
 			return apply_filters( 'jet-engine/elementor-views/frontend/listing-content', $content, $listing_id );
+		}
+
+		/**
+		 * Maybe reset excerpt flag so that inner elementor templates can print their styles.
+		 *
+		 * @param $document
+		 * @param $is_excerpt
+		 */
+		public function maybe_reset_excerpt_flag( $document, $is_excerpt ) {
+
+			if ( 'internal' !== get_option( 'elementor_css_print_method' ) ) {
+				return;
+			}
+
+			if ( ! $this->processed_listing_id ) {
+				return;
+			}
+
+			$post_id = $document->get_post()->ID;
+
+			// Added for nested listings.
+			if ( $this->reset_excerpt_flag && (int) $post_id === (int) $this->processed_listing_id ) {
+				Elementor\Plugin::instance()->frontend->start_excerpt_flag( null );
+
+				$this->reset_excerpt_flag = false;
+			}
+
+			if ( ! $is_excerpt ) {
+				return;
+			}
+
+			if ( (int) $post_id !== (int) $this->processed_listing_id && ! in_array( $post_id, $this->css_added ) ) {
+				Elementor\Plugin::instance()->frontend->end_excerpt_flag( null );
+
+				$this->reset_excerpt_flag = true;
+				$this->add_to_css_added( $post_id );
+			}
 		}
 
 		/**

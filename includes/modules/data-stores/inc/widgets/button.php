@@ -527,7 +527,7 @@ class Button extends \Elementor\Widget_Base {
 
 	protected function render() {
 		$instance = jet_engine()->listings->get_render_instance( 'data-store-button', $this->get_settings_for_display() );
-		$instance->render();
+		$instance->render_content();
 	}
 
 }

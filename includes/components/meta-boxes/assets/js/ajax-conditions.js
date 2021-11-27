@@ -8,6 +8,23 @@
 			this.init();
 		}
 
+		observeDom( obj, callback ) {
+
+			var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+
+			if ( !obj || obj.nodeType !== 1 ) {
+				return;
+			}
+
+			if ( MutationObserver ) {
+				// define a new observer
+				var mutationObserver = new MutationObserver( callback )
+
+				// have the observer observe foo for changes in children
+				mutationObserver.observe( obj, { childList:true, subtree:true })
+			}
+		}
+
 		init() {
 			for ( const condition in window.JetEnginMBAjaxConditionsHandlers ) {
 				if ( 'function' === typeof window.JetEnginMBAjaxConditionsHandlers[ condition ] ) {
@@ -20,6 +37,14 @@
 			} );
 
 			$( document ).trigger( 'jet-engine/meta-box/data-change' );
+
+			var tagInputs = document.querySelectorAll( '.tagchecklist' );
+
+			for ( var i = 0; i < tagInputs.length; i++ ) {
+				this.observeDom( tagInputs[ i ], function( mutationsList, observer ) {
+					$( document ).trigger( 'jet-engine/meta-box/data-change' );
+				} );
+			}
 		}
 
 		updateData( data ) {
@@ -55,54 +80,54 @@
 		 * Based on similar function from ACF plugin
 		 */
 		buildObject( obj, name, value ){
-		
+
 			// replace [] with placeholder
 			name = name.replace( '[]', '[%%index%%]' );
-			
+
 			// vars
 			var keys = name.match(/([^\[\]])+/g);
-			
+
 			if( ! keys ) {
 				return;
 			}
 
 			var length = keys.length;
 			var ref = obj;
-			
+
 			// loop
 			for( var i = 0; i < length; i++ ) {
-				
+
 				// vars
 				var key = String( keys[i] );
-				
+
 				// value
 				if( i == length - 1 ) {
-					
+
 					// %%index%%
 					if( key === '%%index%%' ) {
 						ref.push( value );
-					
+
 					// default
 					} else {
 						ref[ key ] = value;
 					}
-					
+
 				// path
 				} else {
-					
+
 					// array
 					if( keys[i+1] === '%%index%%' ) {
 						if( ! Array.isArray(ref[ key ]) ) {
 							ref[ key ] = [];
 						}
-					
-					// object	
+
+					// object
 					} else {
 						if ( typeof ref[ key ] !== 'object' ) {
 							ref[ key ] = {};
 						}
 					}
-					
+
 					// crawl
 					ref = ref[ key ];
 				}
@@ -113,14 +138,14 @@
 		 * Based on similar function from ACF plugin
 		 */
 		serialize( $el, prefix ){
-			
+
 			// vars
 			var obj = {};
 			var inputs = $el.find( 'select, textarea, input' ).serializeArray();
-			
+
 			// prefix
 			if ( prefix !== undefined ) {
-				
+
 				// filter and modify
 				inputs = inputs.filter( function( item ){
 					return item.name.indexOf( prefix ) === 0;
@@ -133,7 +158,7 @@
 			for ( var i = 0; i < inputs.length; i++ ) {
 				this.buildObject( obj, inputs[i].name, inputs[i].value );
 			}
-			
+
 			// return
 			return obj;
 		}
@@ -142,18 +167,18 @@
 
 			// vars
 			var terms = {};
-			
+
 			var data = this.serialize( $( '.categorydiv, .tagsdiv' ) );
-			
+
 			if ( data.tax_input ) {
 				terms = data.tax_input;
 			}
-			
+
 			// append "category" which uses a different name
 			if ( data.post_category ) {
 				terms.category = data.post_category;
 			}
-			
+
 			// convert any string values (tags) into array format
 			for ( var tax in terms ) {
 				if( ! Array.isArray( terms[ tax ] ) ) {
@@ -203,19 +228,19 @@
 		getTerms() {
 
 			var terms = {};
-			
+
 			// Loop over taxonomies.
 			var taxonomies = wp.data.select( 'core' ).getTaxonomies() || [];
 
 			taxonomies.map(function( taxonomy ){
-				
+
 				// Append selected taxonomies to terms object.
 				var postTerms = wp.data.select( 'core/editor' ).getEditedPostAttribute( taxonomy.rest_base );
 				if( postTerms ) {
 					terms[ taxonomy.slug ] = postTerms;
 				}
 			});
-			
+
 			return terms;
 
 		}
@@ -227,5 +252,5 @@
 	} else {
 		new AjaxConditions();
 	}
-	
+
 } )( jQuery );

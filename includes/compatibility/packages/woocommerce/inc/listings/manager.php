@@ -95,6 +95,11 @@ class Manager {
 			10, 2
 		);
 
+		add_filter(
+			'jet-engine/data-stores/store-post-id',
+			[ $this, 'set_datastore_wc_queried_product_id' ]
+		);
+
 	}
 
 	/**
@@ -268,7 +273,7 @@ class Manager {
 
 		if ( 'media' === $for ) {
 			$groups[] = [
-				'label' => __( 'WooCommerce', 'jet-engine' ),
+				'label'  => __( 'WooCommerce', 'jet-engine' ),
 				'values' => [
 					[
 						'value' => 'get_image',
@@ -278,7 +283,7 @@ class Manager {
 			];
 		} else {
 			$groups[] = [
-				'label' => __( 'WooCommerce', 'jet-engine' ),
+				'label'  => __( 'WooCommerce', 'jet-engine' ),
 				'values' => [
 					[
 						'value' => 'get_permalink',
@@ -411,6 +416,25 @@ class Manager {
 		}
 
 		return $id;
+
+	}
+
+	/**
+	 * Set WC_Product_Query id as post id for Data Stores.
+	 *
+	 * @param $post_id
+	 *
+	 * @return int|mixed
+	 */
+	public function set_datastore_wc_queried_product_id( $post_id ) {
+
+		$listing_object = jet_engine()->listings->data->get_current_object();
+
+		if ( $listing_object && is_a( $listing_object, 'WC_Product' ) ) {
+			$post_id = $listing_object->get_id();
+		}
+
+		return $post_id;
 
 	}
 

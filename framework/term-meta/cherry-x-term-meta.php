@@ -2,7 +2,7 @@
 /**
  * Term Meta module
  *
- * Version: 1.3.4
+ * Version: 1.3.5
  */
 
 // If this file is called directly, abort.
@@ -152,6 +152,8 @@ if ( ! class_exists( 'Cherry_X_Term_Meta' ) ) {
 					$field['options'] = call_user_func( $field['options_callback'] );
 				}
 
+				$value = $this->prepare_field_value( $field, $value );
+
 				$element        = $this->get_arg( $field, 'element', 'control' );
 				$field['id']    = $this->get_arg( $field, 'id', $key );
 				$field['name']  = $this->get_arg( $field, 'name', $key );
@@ -169,6 +171,61 @@ if ( ! class_exists( 'Cherry_X_Term_Meta' ) ) {
 					call_user_func( array( $this->builder, $register_callback ), $field );
 				}
 			}
+		}
+
+		/**
+		 * Prepare field value.
+		 *
+		 * @param array $field
+		 * @param mixed $value
+		 *
+		 * @return mixed
+		 */
+		public function prepare_field_value( $field, $value ) {
+
+			switch ( $field['type'] ) {
+				case 'repeater':
+
+					if ( is_array( $value ) && ! empty( $field['fields'] ) ) {
+
+						$repeater_fields = $field['fields'];
+
+						foreach ( $value as $item_id => $item_value ) {
+							foreach ( $item_value as $repeater_field_id => $repeater_field_value ) {
+								$value[ $item_id ][ $repeater_field_id ] = $this->prepare_field_value( $repeater_fields[ $repeater_field_id ], $repeater_field_value );
+							}
+						}
+					}
+
+					break;
+
+				case 'checkbox':
+
+					if ( ! empty( $field['is_array'] ) && ! empty( $field['options'] ) && ! empty( $value ) ) {
+
+						$adjusted = array();
+
+						if ( ! is_array( $value ) ) {
+							$value = array( $value );
+						}
+
+						foreach ( $value as $val ) {
+							$adjusted[ $val ] = 'true';
+						}
+
+						foreach ( $field['options'] as $opt_val => $opt_label ) {
+							if ( ! in_array( $opt_val, $value ) ) {
+								$adjusted[ $opt_val ] = 'false';
+							}
+						}
+
+						$value = $adjusted;
+					}
+
+					break;
+			}
+
+			return $value;
 		}
 
 		/**
@@ -294,16 +351,10 @@ if ( ! class_exists( 'Cherry_X_Term_Meta' ) ) {
 					continue;
 				}
 
-				if ( is_array( $_POST[ $key ] ) ) {
-					$new_val = array_filter( $_POST[ $key ] );
+				if ( $this->to_timestamp( $field ) ) {
+					$new_val = strtotime( $_POST[ $key ] );
 				} else {
-					if ( $this->to_timestamp( $field ) ) {
-						$new_val = strtotime( $_POST[ $key ] );
-					} elseif ( ! empty( $field['sanitize_callback'] ) && is_callable( $field['sanitize_callback'] ) ) {
-						$new_val = call_user_func( $field['sanitize_callback'], $_POST[ $key ], $key, $field );
-					} else {
-						$new_val = esc_attr( $_POST[ $key ] );
-					}
+					$new_val = $this->sanitize_meta( $field, $_POST[ $key ] );
 				}
 
 				/**
@@ -346,6 +397,49 @@ if ( ! class_exists( 'Cherry_X_Term_Meta' ) ) {
 
 			return ( true === $field['is_timestamp'] );
 
+		}
+
+		/**
+		 * Sanitize passed meta value
+		 *
+		 * @param  array $field Meta field to sanitize.
+		 * @param  mixed $value Meta value.
+		 * @return mixed
+		 */
+		public function sanitize_meta( $field, $value ) {
+
+			if ( 'repeater' === $field['type'] && ! empty( $field['fields'] ) && is_array( $value ) ) {
+				$repeater_fields = $field['fields'];
+
+				foreach ( $value as $item_id => $item_value ) {
+					foreach ( $item_value as $repeater_field_id => $repeater_field_value ) {
+						$value[ $item_id ][ $repeater_field_id ] = $this->sanitize_meta( $repeater_fields[ $repeater_field_id ], $repeater_field_value );
+					}
+				}
+			}
+
+			if ( 'checkbox' === $field['type'] && ! empty( $field['is_array'] ) ) {
+				$raw    = ! empty( $value ) ? $value : array();
+				$result = array();
+
+				if ( is_array( $raw ) ) {
+					foreach ( $raw as $raw_key => $raw_value ) {
+						$bool_value = filter_var( $raw_value, FILTER_VALIDATE_BOOLEAN );
+						if ( $bool_value ) {
+							$result[] = $raw_key;
+						}
+					}
+				}
+
+				return $result;
+			}
+
+			if ( ! empty( $field['sanitize_callback'] ) && is_callable( $field['sanitize_callback'] ) ) {
+				$key = ! empty( $field['name'] ) ? $field['name'] : null;
+				return call_user_func( $field['sanitize_callback'], $value, $key, $field );
+			}
+
+			return is_array( $value ) ? $value : esc_attr( $value );
 		}
 
 	}

@@ -682,6 +682,7 @@
 
 			// CX-Select
 			select: {
+				selectWrapClass: '.cx-ui-select-wrapper',
 				selectClass: '.cx-ui-select[data-filter="false"]:not([name*="__i__"])',
 				select2Class: '.cx-ui-select[data-filter="true"]:not([name*="__i__"]), .cx-ui-select[multiple]:not([name*="__i__"])',
 				selectClearClass: '.cx-ui-select-clear',
@@ -726,8 +727,9 @@
 
 				select2Init: function ( index, element ) {
 					var $this    = $( element ),
+						$wrapper = $this.closest( this.selectWrapClass ),
 						name     = $this.attr( 'id' ),
-						settings = { placeholder: $this.data( 'placeholder' ) },
+						settings = { placeholder: $this.data( 'placeholder' ), dropdownParent: $wrapper },
 						postType = $this.data( 'post-type' ),
 						exclude  = $this.data( 'exclude' ),
 						action   = $this.data( 'action' );
@@ -1343,6 +1345,9 @@
 				repeaterTitleClass: '.cx-ui-repeater-title',
 				addItemButtonClass: '.cx-ui-repeater-add',
 				removeItemButtonClass: '.cx-ui-repeater-remove',
+				removeConfirmItemButtonClass: '.cx-ui-repeater-remove__confirm',
+				removeCancelItemButtonClass: '.cx-ui-repeater-remove__cancel',
+				copyItemButtonClass: '.cx-ui-repeater-copy',
 				toggleItemButtonClass: '.cx-ui-repeater-toggle',
 				minItemClass: 'cx-ui-repeater-min',
 				sortablePlaceholderClass: 'sortable-placeholder',
@@ -1356,7 +1361,10 @@
 				addEvents: function() {
 					$( 'body' )
 						.on( 'click', this.addItemButtonClass, { 'self': this }, this.addItem )
-						.on( 'click', this.removeItemButtonClass, { 'self': this }, this.removeItem )
+						.on( 'click', this.removeItemButtonClass, { 'self': this }, this.showRemoveItemTooltip )
+						.on( 'click', this.removeConfirmItemButtonClass, { 'self': this }, this.removeItem )
+						.on( 'click', this.removeCancelItemButtonClass, { 'self': this }, this.hideRemoveItemTooltip )
+						.on( 'click', this.copyItemButtonClass, { 'self': this }, this.copyItem )
 						.on( 'click', this.toggleItemButtonClass, { 'self': this }, this.toggleItem )
 						.on( 'change', this.repeaterListClass + ' input, ' + this.repeaterListClass + ' textarea, ' + this.repeaterListClass + ' select', { 'self': this }, this.changeWrapperLable )
 						.on( 'sortable-init', { 'self': this }, this.sortableItem );
@@ -1403,6 +1411,114 @@
 					$list.data( 'index', index );
 
 					self.triggers( $( self.repeaterItemClass + ':last', $list ) ).stopDefaultEvent( event );
+				},
+
+				copyItem: function( event ) {
+					var self        = event.data.self,
+						$item       = $( this ).closest( self.repeaterItemClass ),
+						$list       = $( this ).closest( self.repeaterListClass ),
+						$parent     = $list.parent().closest( self.repeaterListClass ),
+						itemIndex   = $item.data( 'item-index' ),
+						newIndex    = $list.data( 'index' ),
+						tmplName    = $list.data( 'name' ),
+						widgetId    = $list.data( 'widget-id' ),
+						rowTemplate = wp.template( tmplName ),
+						data        = { index: newIndex },
+						newItemHtml,
+						$newItem;
+
+					widgetId = '__i__' !== widgetId ? widgetId : $list.attr( 'id' ) ;
+
+					if ( widgetId ) {
+						data.widgetId = widgetId;
+					}
+
+					if ( $parent.length ) {
+						data.parentIndex = parseInt( $parent.data( 'index' ), 10 ) - 1;
+					}
+
+					$newItem = $( rowTemplate( data ) );
+
+					// Set values.
+					$item.find( '.cx-ui-repeater-item-control' ).each( function() {
+						var controlName = $( this ).data( 'repeater-control-name' ),
+							$field      = $( this ).find( '[name^="' + widgetId + '\[item-' + itemIndex + '\]\[' + controlName + '\]"]' );
+
+						// Set value for checkbox, radio, switcher fields.
+						if ( $field.filter( '.cx-checkbox-input, .cx-radio-input, .cx-input-switcher' ).length ) {
+
+							$field.each( function() {
+								var $this       = $( this ),
+									checked     = $this.prop( 'checked' ),
+									value       = $this.val(),
+									nameAttr    = $this.attr( 'name' ),
+									newNameAttr = nameAttr.replace( '[item-' + itemIndex + ']', '[item-' + newIndex + ']' );
+
+								if ( $this.hasClass( 'cx-checkbox-input' ) ) {
+									$newItem.find( '[name="' + newNameAttr + '"]' ).val( value ).attr( 'checked', checked );
+								} else {
+									$newItem.find( '[name="' + newNameAttr + '"][value="' + value + '"]' ).prop( 'checked', checked );
+								}
+							} );
+
+						// Set value for select fields.
+						} else if ( $field.filter( '.cx-ui-select' ).length ) {
+							var hasFilter  = $field.data( 'filter' );
+
+							if ( hasFilter ) {
+								$newItem
+									.find( '.cx-ui-select[name^="' + widgetId + '\[item-' + newIndex + '\]\[' + controlName + '\]"]' )
+									.html( $field.html() );
+							} else {
+								$newItem
+									.find( '.cx-ui-select[name^="' + widgetId + '\[item-' + newIndex + '\]\[' + controlName + '\]"]' )
+									.val( $field.val() );
+							}
+
+						} else {
+							$newItem
+								.find( '[name="' + widgetId + '\[item-' + newIndex + '\]\[' + controlName + '\]"]' )
+								.val( $field.val() );
+						}
+
+						// Add media preview.
+						var $mediaWrap = $( this ).find( '.cx-ui-media-wrap' );
+
+						if ( $mediaWrap.length ) {
+							var previewHtml = $mediaWrap.find( '.cx-upload-preview' ).html();
+
+							$newItem
+								.find( '.cx-ui-repeater-item-control[data-repeater-control-name="' + controlName + '"] .cx-upload-preview' )
+								.html( previewHtml );
+						}
+					} );
+
+					// Add repeater title.
+					$newItem.find( '.cx-ui-repeater-title' ).html( $item.find( '.cx-ui-repeater-title' ).html() );
+
+					$item.after( $newItem );
+
+					newIndex++;
+					$list.data( 'index', newIndex );
+
+					self.triggers( $newItem )
+						.stopDefaultEvent( event );
+				},
+
+				showRemoveItemTooltip: function( event ) {
+					var self = event.data.self;
+
+					$( this ).find( '.cx-tooltip' ).addClass( 'cx-tooltip--show' );
+
+					self.stopDefaultEvent( event );
+				},
+
+				hideRemoveItemTooltip: function( event ) {
+					var self = event.data.self;
+
+					$( this ).closest( '.cx-tooltip' ).removeClass( 'cx-tooltip--show' );
+
+					self.stopDefaultEvent( event );
 				},
 
 				removeItem: function( event ) {

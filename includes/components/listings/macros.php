@@ -36,6 +36,10 @@ if ( ! class_exists( 'Jet_Engine_Listings_Macros' ) ) {
 			unset( $option_fields[''] );
 			$option_fields = array_values( $option_fields );
 
+			require_once jet_engine()->plugin_path( 'includes/base/base-macros.php' );
+
+			do_action( 'jet-engine/register-macros' );
+
 			$macros_list = apply_filters( 'jet-engine/listings/macros-list', array(
 				'title' => array(
 					'label' => esc_html__( 'Title', 'jet-engine' ),

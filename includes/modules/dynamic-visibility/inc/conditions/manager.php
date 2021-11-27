@@ -55,6 +55,7 @@ class Manager {
 		require_once $path . 'switcher-disabled.php';
 		require_once $path . 'value-checked.php';
 		require_once $path . 'value-not-checked.php';
+		require_once $path . 'post-has-terms.php';
 
 		do_action( 'jet-engine/modules/dynamic-visibility/conditions/register', $this );
 

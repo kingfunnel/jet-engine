@@ -334,6 +334,10 @@ if ( ! class_exists( 'Jet_Engine_Module_Listing_Injections' ) ) {
 							$class = get_class( $post );
 
 							switch ( $class ) {
+								case 'WP_Post':
+									$meta_val = get_post_meta( $post->ID, $meta_key );
+									break;
+
 								case 'WP_User':
 									$meta_val = get_user_meta( $post->ID, $meta_key );
 									break;
@@ -343,7 +347,7 @@ if ( ! class_exists( 'Jet_Engine_Module_Listing_Injections' ) ) {
 									break;
 
 								default:
-									$meta_val = get_post_meta( $post->ID, $meta_key );
+									$meta_val = apply_filters( 'jet-engine/listing-injections/item-meta-value', false, $post, $meta_key );
 							}
 
 							$exists   = ! empty( $meta_val ) ? true : false;

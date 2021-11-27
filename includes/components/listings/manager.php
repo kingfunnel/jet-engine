@@ -834,6 +834,11 @@ if ( ! class_exists( 'Jet_Engine_Listings' ) ) {
 				case 'date':
 				case 'date_i18n':
 
+					// Added to prevent print `January 1, 1970` if date field is empty.
+					if ( empty( $result ) ) {
+						return '';
+					}
+
 					if ( ! Jet_Engine_Tools::is_valid_timestamp( $result ) ) {
 						$result = strtotime( $result );
 					}

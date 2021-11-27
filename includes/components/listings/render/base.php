@@ -84,7 +84,7 @@ if ( ! class_exists( 'Jet_Engine_Render_Base' ) ) {
 
 		public function get_content() {
 			ob_start();
-			$this->render();
+			$this->render_content();
 			return ob_get_clean();
 		}
 
